@@ -40,7 +40,7 @@ func BenchmarkChannel(b *testing.B) {
 	wg.Wait()
 }
 
-func BenchmarkEsQueue(b *testing.B) {
+func BenchmarkCasQueue(b *testing.B) {
 	var checkData = make([]int, b.N)
 	q := casQueue.NewQueue(uint64(cacheSize), time.Duration(10) * time.Microsecond)
 	var wg sync.WaitGroup
@@ -69,7 +69,7 @@ func BenchmarkEsQueue(b *testing.B) {
 	checkPutAndGet(checkData)
 }
 
-func BenchmarkEsQueueWithBatch(b *testing.B) {
+func BenchmarkCasQueueWithBatch(b *testing.B) {
 	var checkData = make([]int, b.N)
 	q := casQueue.NewQueue(uint64(cacheSize), time.Duration(10) * time.Microsecond)
 	var wg sync.WaitGroup
@@ -129,7 +129,7 @@ func BenchmarkChannelReadContention(b *testing.B) {
 	wg.Wait()
 }
 
-func BenchmarkEsQueueReadContention(b *testing.B) {
+func BenchmarkCasQueueReadContention(b *testing.B) {
 	var checkData = make([]int, b.N)
 	q := casQueue.NewQueue(uint64(cacheSize), time.Duration(10) * time.Microsecond)
 	var wgGet sync.WaitGroup
@@ -174,7 +174,7 @@ func BenchmarkEsQueueReadContention(b *testing.B) {
 	checkPutAndGet(checkData)
 }
 
-func BenchmarkEsQueueReadContentionWithBatch(b *testing.B) {
+func BenchmarkCasQueueReadContentionWithBatch(b *testing.B) {
 	var checkData = make([]int, b.N)
 	q := casQueue.NewQueue(uint64(cacheSize), time.Duration(10) * time.Microsecond)
 	var wgGet sync.WaitGroup
@@ -263,7 +263,7 @@ func BenchmarkChannelContention(b *testing.B) {
 	wg.Wait()
 }
 
-func BenchmarkEsQueueContention(b *testing.B) {
+func BenchmarkCasQueueContention(b *testing.B) {
 	var checkData = make([]int, b.N)
 	var putData = make([]int, b.N)
 	q := casQueue.NewQueue(uint64(cacheSize), time.Duration(10) * time.Microsecond)
@@ -322,7 +322,7 @@ func BenchmarkEsQueueContention(b *testing.B) {
 	checkPutAndGet(checkData)
 }
 
-func BenchmarkEsQueueContentionWithBatch(b *testing.B) {
+func BenchmarkCasQueueContentionWithBatch(b *testing.B) {
 	var checkData = make([]int, b.N)
 	var putData = make([]int, b.N)
 	q := casQueue.NewQueue(uint64(cacheSize), time.Duration(10) * time.Microsecond)

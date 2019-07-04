@@ -12,10 +12,10 @@ var goRoutineCnt = 1000
 var batchSize = 32
 var cacheSize = goRoutineCnt * 100
 
-func checkPutAndGet(checkData []int){
+func checkPutAndGet(checkData []int) {
 	l := len(checkData)
-	for i := 0; i < l; i++{
-		if checkData[i] != i{
+	for i := 0; i < l; i++ {
+		if checkData[i] != i {
 			fmt.Printf("\ncheckPutAndGet error!! lost data!!! i:%v checkData[i]:%v l:%v\n", i, checkData[i], l)
 		}
 	}
@@ -42,18 +42,18 @@ func BenchmarkChannel(b *testing.B) {
 
 func BenchmarkCasQueue(b *testing.B) {
 	var checkData = make([]int, b.N)
-	q := casQueue.NewQueue(uint64(cacheSize), time.Duration(10) * time.Microsecond)
+	q := casQueue.NewQueue(uint64(cacheSize), time.Duration(10)*time.Microsecond)
 	var wg sync.WaitGroup
 	wg.Add(1)
 
 	b.ResetTimer()
 	go func() {
 		for i := 0; i < b.N; i++ {
-			val,ok,_:=q.Get()
+			val, ok, _ := q.Get()
 			for !ok {
-				val,ok,_=q.Get()
+				val, ok, _ = q.Get()
 			}
-			v:=val.(int)
+			v := val.(int)
 			checkData[v] = v
 		}
 		wg.Done()
@@ -71,7 +71,7 @@ func BenchmarkCasQueue(b *testing.B) {
 
 func BenchmarkCasQueueWithBatch(b *testing.B) {
 	var checkData = make([]int, b.N)
-	q := casQueue.NewQueue(uint64(cacheSize), time.Duration(10) * time.Microsecond)
+	q := casQueue.NewQueue(uint64(cacheSize), time.Duration(10)*time.Microsecond)
 	var wg sync.WaitGroup
 	wg.Add(1)
 
@@ -80,9 +80,9 @@ func BenchmarkCasQueueWithBatch(b *testing.B) {
 		var valuesGet []interface{}
 		valuesGet = make([]interface{}, batchSize)
 		getSize := 0
-		for i := 0; i < b.N; i+= getSize {
-			getSize,_ = q.Gets(valuesGet)
-			for j := 0; j < getSize; j++{
+		for i := 0; i < b.N; i += getSize {
+			getSize, _ = q.Gets(valuesGet)
+			for j := 0; j < getSize; j++ {
 				v := valuesGet[j].(int)
 				if v < b.N {
 					checkData[v] = v
@@ -95,8 +95,8 @@ func BenchmarkCasQueueWithBatch(b *testing.B) {
 	putSize := 0
 	var valuesPut []interface{}
 	valuesPut = make([]interface{}, batchSize)
-	for i := 0; i < b.N; i+= putSize {
-		for j:=0; j< batchSize; j++{
+	for i := 0; i < b.N; i += putSize {
+		for j := 0; j < batchSize; j++ {
 			valuesPut[j] = i + j
 		}
 		putSize, _ = q.Puts(valuesPut)
@@ -131,7 +131,7 @@ func BenchmarkChannelReadContention(b *testing.B) {
 
 func BenchmarkCasQueueReadContention(b *testing.B) {
 	var checkData = make([]int, b.N)
-	q := casQueue.NewQueue(uint64(cacheSize), time.Duration(10) * time.Microsecond)
+	q := casQueue.NewQueue(uint64(cacheSize), time.Duration(10)*time.Microsecond)
 	var wgGet sync.WaitGroup
 	wgGet.Add(goRoutineCnt)
 	var wgPut sync.WaitGroup
@@ -150,10 +150,10 @@ func BenchmarkCasQueueReadContention(b *testing.B) {
 
 	for i := 0; i < goRoutineCnt; i++ {
 		go func() {
-			for i := 0; i < b.N / goRoutineCnt; i++ {
+			for i := 0; i < b.N/goRoutineCnt; i++ {
 				val, ok, _ := q.Get()
 				for !ok {
-					val, ok, _= q.Get()
+					val, ok, _ = q.Get()
 				}
 				v := val.(int)
 				checkData[v] = v
@@ -163,7 +163,7 @@ func BenchmarkCasQueueReadContention(b *testing.B) {
 	}
 	wgGet.Wait()
 	wgPut.Wait()
-	for q.Quantity() > 0{
+	for q.Quantity() > 0 {
 		val, ok, _ := q.Get()
 		for !ok {
 			val, ok, _ = q.Get()
@@ -176,7 +176,7 @@ func BenchmarkCasQueueReadContention(b *testing.B) {
 
 func BenchmarkCasQueueReadContentionWithBatch(b *testing.B) {
 	var checkData = make([]int, b.N)
-	q := casQueue.NewQueue(uint64(cacheSize), time.Duration(10) * time.Microsecond)
+	q := casQueue.NewQueue(uint64(cacheSize), time.Duration(10)*time.Microsecond)
 	var wgGet sync.WaitGroup
 	wgGet.Add(goRoutineCnt)
 	var wgPut sync.WaitGroup
@@ -187,12 +187,12 @@ func BenchmarkCasQueueReadContentionWithBatch(b *testing.B) {
 		putSize := 0
 		var valuesPut []interface{}
 		valuesPut = make([]interface{}, batchSize)
-		for i := 0; i < b.N; i+= putSize {
-			if i + batchSize > b.N{
-				valuesPut = valuesPut[0:b.N-i]
+		for i := 0; i < b.N; i += putSize {
+			if i+batchSize > b.N {
+				valuesPut = valuesPut[0 : b.N-i]
 			}
 			l := len(valuesPut)
-			for j:=0; j < l; j++{
+			for j := 0; j < l; j++ {
 				valuesPut[j] = i + j
 			}
 			putSize, _ = q.Puts(valuesPut)
@@ -205,12 +205,12 @@ func BenchmarkCasQueueReadContentionWithBatch(b *testing.B) {
 			var valuesGet []interface{}
 			valuesGet = make([]interface{}, batchSize)
 			getSize := 0
-			for i := 0; i < b.N / goRoutineCnt; i+= getSize {
-				if i + batchSize > b.N / goRoutineCnt{
-					valuesGet = make([]interface{}, b.N / goRoutineCnt - i)
+			for i := 0; i < b.N/goRoutineCnt; i += getSize {
+				if i+batchSize > b.N/goRoutineCnt {
+					valuesGet = make([]interface{}, b.N/goRoutineCnt-i)
 				}
-				getSize,_ = q.Gets(valuesGet)
-				for j := 0; j < getSize; j++{
+				getSize, _ = q.Gets(valuesGet)
+				for j := 0; j < getSize; j++ {
 					v := valuesGet[j].(int)
 					if v < b.N {
 						checkData[v] = v
@@ -222,7 +222,7 @@ func BenchmarkCasQueueReadContentionWithBatch(b *testing.B) {
 	}
 	wgGet.Wait()
 	wgPut.Wait()
-	for q.Quantity() > 0{
+	for q.Quantity() > 0 {
 		val, ok, _ := q.Get()
 		for !ok {
 			val, ok, _ = q.Get()
@@ -234,7 +234,6 @@ func BenchmarkCasQueueReadContentionWithBatch(b *testing.B) {
 	}
 	checkPutAndGet(checkData)
 }
-
 
 func BenchmarkChannelContention(b *testing.B) {
 	ch := make(chan interface{}, goRoutineCnt)
@@ -266,7 +265,7 @@ func BenchmarkChannelContention(b *testing.B) {
 func BenchmarkCasQueueContention(b *testing.B) {
 	var checkData = make([]int, b.N)
 	var putData = make([]int, b.N)
-	q := casQueue.NewQueue(uint64(cacheSize), time.Duration(10) * time.Microsecond)
+	q := casQueue.NewQueue(uint64(cacheSize), time.Duration(10)*time.Microsecond)
 	var wgGet, wgPut sync.WaitGroup
 	wgGet.Add(goRoutineCnt)
 	wgPut.Add(goRoutineCnt)
@@ -275,13 +274,13 @@ func BenchmarkCasQueueContention(b *testing.B) {
 	for i := 0; i < goRoutineCnt; i++ {
 		go func(i int, b *testing.B) {
 			putNumber := 0
-			for j := 0; j < b.N / goRoutineCnt; j++ {
-				putNumber = i * (b.N / goRoutineCnt)+ j
-				ok, _ := q.Put( putNumber)
-				for !ok{
+			for j := 0; j < b.N/goRoutineCnt; j++ {
+				putNumber = i*(b.N/goRoutineCnt) + j
+				ok, _ := q.Put(putNumber)
+				for !ok {
 					ok, _ = q.Put(putNumber)
 				}
-				putData[putNumber]  = putNumber
+				putData[putNumber] = putNumber
 			}
 			wgPut.Done()
 		}(i, b)
@@ -289,12 +288,12 @@ func BenchmarkCasQueueContention(b *testing.B) {
 
 	for i := 0; i < goRoutineCnt; i++ {
 		go func() {
-			for i := 0; i < b.N / goRoutineCnt; i++ {
-				val, ok, _:= q.Get()
+			for i := 0; i < b.N/goRoutineCnt; i++ {
+				val, ok, _ := q.Get()
 				for !ok {
-					val, ok, _= q.Get()
+					val, ok, _ = q.Get()
 				}
-				v:=val.(int)
+				v := val.(int)
 				checkData[v] = v
 			}
 			wgGet.Done()
@@ -302,8 +301,8 @@ func BenchmarkCasQueueContention(b *testing.B) {
 	}
 	wgPut.Wait()
 	l := len(putData)
-	for i:= 0; i < l; i++{
-		if putData[i] != i{
+	for i := 0; i < l; i++ {
+		if putData[i] != i {
 			ok, _ := q.Put(i)
 			for ok == false {
 				ok, _ = q.Put(i)
@@ -311,12 +310,12 @@ func BenchmarkCasQueueContention(b *testing.B) {
 		}
 	}
 	wgGet.Wait()
-	for q.Quantity() > 0{
+	for q.Quantity() > 0 {
 		val, ok, _ := q.Get()
 		for !ok {
 			val, ok, _ = q.Get()
 		}
-		v:=val.(int)
+		v := val.(int)
 		checkData[v] = v
 	}
 	checkPutAndGet(checkData)
@@ -325,7 +324,7 @@ func BenchmarkCasQueueContention(b *testing.B) {
 func BenchmarkCasQueueContentionWithBatch(b *testing.B) {
 	var checkData = make([]int, b.N)
 	var putData = make([]int, b.N)
-	q := casQueue.NewQueue(uint64(cacheSize), time.Duration(10) * time.Microsecond)
+	q := casQueue.NewQueue(uint64(cacheSize), time.Duration(10)*time.Microsecond)
 	var wgGet, wgPut sync.WaitGroup
 	wgGet.Add(goRoutineCnt)
 	wgPut.Add(goRoutineCnt)
@@ -337,17 +336,17 @@ func BenchmarkCasQueueContentionWithBatch(b *testing.B) {
 			var valuesPut []interface{}
 			valuesPut = make([]interface{}, batchSize)
 			putNumber := 0
-			for j := 0; j < b.N / goRoutineCnt; j+=putSize {
-				putNumber = i * (b.N / goRoutineCnt)+ j
-				if putNumber + batchSize > (i+1) * (b.N / goRoutineCnt){
-					valuesPut = valuesPut[0:(i+1) * (b.N / goRoutineCnt) - putNumber]
+			for j := 0; j < b.N/goRoutineCnt; j += putSize {
+				putNumber = i*(b.N/goRoutineCnt) + j
+				if putNumber+batchSize > (i+1)*(b.N/goRoutineCnt) {
+					valuesPut = valuesPut[0 : (i+1)*(b.N/goRoutineCnt)-putNumber]
 				}
 				l := len(valuesPut)
-				for k:=0; k < l; k++{
+				for k := 0; k < l; k++ {
 					valuesPut[k] = putNumber + k
 				}
 				putSize, _ = q.Puts(valuesPut)
-				for k:=0; k < putSize; k++{
+				for k := 0; k < putSize; k++ {
 					v := valuesPut[k].(int)
 					if v < b.N {
 						putData[v] = v
@@ -362,12 +361,12 @@ func BenchmarkCasQueueContentionWithBatch(b *testing.B) {
 			var valuesGet []interface{}
 			valuesGet = make([]interface{}, batchSize)
 			getSize := 0
-			for i := 0; i < b.N / goRoutineCnt; i+= getSize {
-				if i + batchSize > b.N / goRoutineCnt{
-					valuesGet = make([]interface{}, b.N / goRoutineCnt - i)
+			for i := 0; i < b.N/goRoutineCnt; i += getSize {
+				if i+batchSize > b.N/goRoutineCnt {
+					valuesGet = make([]interface{}, b.N/goRoutineCnt-i)
 				}
-				getSize,_ = q.Gets(valuesGet)
-				for j := 0; j < getSize; j++{
+				getSize, _ = q.Gets(valuesGet)
+				for j := 0; j < getSize; j++ {
 					v := valuesGet[j].(int)
 					if v < b.N {
 						checkData[v] = v
@@ -379,8 +378,8 @@ func BenchmarkCasQueueContentionWithBatch(b *testing.B) {
 	}
 	wgPut.Wait()
 	l := len(putData)
-	for i:= 0; i < l; i++{
-		if putData[i] != i{
+	for i := 0; i < l; i++ {
+		if putData[i] != i {
 			ok, _ := q.Put(i)
 			for ok == false {
 				ok, _ = q.Put(i)
@@ -388,12 +387,12 @@ func BenchmarkCasQueueContentionWithBatch(b *testing.B) {
 		}
 	}
 	wgGet.Wait()
-	for q.Quantity() > 0{
+	for q.Quantity() > 0 {
 		val, ok, _ := q.Get()
 		for !ok {
 			val, ok, _ = q.Get()
 		}
-		v:=val.(int)
+		v := val.(int)
 		if v < b.N {
 			checkData[v] = v
 		}

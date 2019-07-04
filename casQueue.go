@@ -7,30 +7,30 @@ import (
 	"time"
 )
 
-type esCache struct {
+type casCache struct {
 	putNo uint64
 	getNo uint64
 	value interface{}
 }
 
 // lock free queue
-type EsQueue struct {
+type CasQueue struct {
 	sleepTime time.Duration
 	capacity uint64
 	capMod    uint64
 	putPos    uint64
 	getPos    uint64
-	cache     []esCache
+	cache     []casCache
 }
 
-func NewQueue(capacity uint64, sleepTime time.Duration) *EsQueue {
-	q := new(EsQueue)
+func NewQueue(capacity uint64, sleepTime time.Duration) *CasQueue {
+	q := new(CasQueue)
 	q.capacity = minQuantity(capacity)
 	q.capMod = q.capacity - 1
 	q.putPos = 0
 	q.getPos = 0
 	q.sleepTime = sleepTime
-	q.cache = make([]esCache, q.capacity)
+	q.cache = make([]casCache, q.capacity)
 	for i := range q.cache {
 		cache := &q.cache[i]
 		cache.getNo = uint64(i)
@@ -42,18 +42,18 @@ func NewQueue(capacity uint64, sleepTime time.Duration) *EsQueue {
 	return q
 }
 
-func (q *EsQueue) String() string {
+func (q *CasQueue) String() string {
 	getPos := atomic.LoadUint64(&q.getPos)
 	putPos := atomic.LoadUint64(&q.putPos)
 	return fmt.Sprintf("Queue{capacity: %v, capMod: %v, putPos: %v, getPos: %v}",
 		q.capacity, q.capMod, putPos, getPos)
 }
 
-func (q *EsQueue) Capacity() uint64 {
+func (q *CasQueue) Capacity() uint64 {
 	return q.capacity
 }
 
-func (q *EsQueue) Quantity() uint64 {
+func (q *CasQueue) Quantity() uint64 {
 	var putPos, getPos uint64
 	var quantity uint64
 	getPos = atomic.LoadUint64(&q.getPos)
@@ -68,9 +68,9 @@ func (q *EsQueue) Quantity() uint64 {
 }
 
 // put queue functions
-func (q *EsQueue) Put(val interface{}) (ok bool, quantity uint64) {
+func (q *CasQueue) Put(val interface{}) (ok bool, quantity uint64) {
 	var putPos, putPosNew, getPos, posCnt uint64
-	var cache *esCache
+	var cache *casCache
 
 	getPos = atomic.LoadUint64(&q.getPos)
 	putPos = atomic.LoadUint64(&q.putPos)
@@ -113,9 +113,9 @@ func (q *EsQueue) Put(val interface{}) (ok bool, quantity uint64) {
 }
 
 // get queue functions
-func (q *EsQueue) Get() (val interface{}, ok bool, quantity uint64) {
+func (q *CasQueue) Get() (val interface{}, ok bool, quantity uint64) {
 	var putPos, getPos, getPosNew, posCnt uint64
-	var cache *esCache
+	var cache *casCache
 
 	putPos = atomic.LoadUint64(&q.putPos)
 	getPos = atomic.LoadUint64(&q.getPos)
@@ -158,7 +158,7 @@ func (q *EsQueue) Get() (val interface{}, ok bool, quantity uint64) {
 }
 
 // puts queue functions
-func (q *EsQueue) Puts(values []interface{}) (puts, quantity int) {
+func (q *CasQueue) Puts(values []interface{}) (puts, quantity int) {
 	var putPos, putPosNew, getPos, posCnt, putCnt uint64
 
 	getPos = atomic.LoadUint64(&q.getPos)
@@ -209,7 +209,7 @@ func (q *EsQueue) Puts(values []interface{}) (puts, quantity int) {
 }
 
 // gets queue functions
-func (q *EsQueue) Gets(values []interface{}) (gets, quantity int) {
+func (q *CasQueue) Gets(values []interface{}) (gets, quantity int) {
 	var putPos, getPos, getPosNew, posCnt, getCnt uint64
 
 	putPos = atomic.LoadUint64(&q.putPos)

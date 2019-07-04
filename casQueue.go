@@ -16,7 +16,7 @@ type casCache struct {
 // lock free queue
 type CasQueue struct {
 	sleepTime time.Duration
-	capacity uint64
+	capacity  uint64
 	capMod    uint64
 	putPos    uint64
 	getPos    uint64
@@ -61,7 +61,7 @@ func (q *CasQueue) Quantity() uint64 {
 
 	if putPos > getPos {
 		quantity = putPos - getPos
-	}else{
+	} else {
 		quantity = 0
 	}
 	return quantity
@@ -77,7 +77,7 @@ func (q *CasQueue) Put(val interface{}) (ok bool, quantity uint64) {
 
 	if putPos > getPos {
 		posCnt = putPos - getPos
-	}else{
+	} else {
 		posCnt = 0
 	}
 
@@ -122,7 +122,7 @@ func (q *CasQueue) Get() (val interface{}, ok bool, quantity uint64) {
 
 	if putPos > getPos {
 		posCnt = putPos - getPos
-	}else{
+	} else {
 		posCnt = 0
 	}
 
@@ -261,7 +261,6 @@ func (q *CasQueue) Gets(values []interface{}) (gets, quantity int) {
 	return int(getCnt), int(posCnt - getCnt)
 }
 
-
 // round 到最近的2的倍数
 func minQuantity(v uint64) uint64 {
 	v--
@@ -274,5 +273,3 @@ func minQuantity(v uint64) uint64 {
 	v++
 	return v
 }
-
-

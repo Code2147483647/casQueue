@@ -12,16 +12,20 @@ go test -bench="." -benchtime="10s"
 ```
 ## result
 ```go
-BenchmarkChannel-4                          	100000000	       128 ns/op
-BenchmarkEsQueue-4                          	200000000	       100 ns/op
-BenchmarkEsQueueWithBatch-4                 	300000000	        46.4 ns/op
-BenchmarkChannelReadContention-4            	50000000	       361 ns/op
-BenchmarkEsQueueReadContention-4            	100000000	       115 ns/op
-BenchmarkEsQueueReadContentionWithBatch-4   	300000000	        59.9 ns/op
-BenchmarkChannelContention-4                	100000000	       175 ns/op
-BenchmarkEsQueueContention-4                	100000000	       113 ns/op
-BenchmarkEsQueueContentionWithBatch-4       	500000000	        83.2 ns/op
+go test -bench="." -benchtime="10s"
+goos: darwin
+goarch: amd64
+pkg: github.com/golangCasQueue/casQueue/casQueueTest
+BenchmarkChannel-4                           	100000000	       120 ns/op
+BenchmarkCasQueue-4                          	200000000	        95.8 ns/op
+BenchmarkCasQueueWithBatch-4                 	500000000	        54.4 ns/op
+BenchmarkChannelReadContention-4             	50000000	       385 ns/op
+BenchmarkCasQueueReadContention-4            	100000000	       112 ns/op
+BenchmarkCasQueueReadContentionWithBatch-4   	300000000	        65.4 ns/op
+BenchmarkChannelContention-4                 	100000000	       177 ns/op
+BenchmarkCasQueueContention-4                	100000000	       109 ns/op
+BenchmarkCasQueueContentionWithBatch-4       	500000000	        73.8 ns/op
 PASS
-ok  	github.com/golangCasQueue/casQueue/casQueueTest	199.714s
+ok  	github.com/golangCasQueue/casQueue/casQueueTest	203.069s
 ```
 

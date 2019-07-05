@@ -2,7 +2,6 @@ package casQueue
 
 import (
 	"fmt"
-	"runtime"
 	"sync/atomic"
 	"time"
 )
@@ -84,14 +83,12 @@ func (q *CasQueue) Put(val interface{}) (ok bool, quantity uint64) {
 	// full
 	if posCnt >= q.capacity {
 		time.Sleep(q.sleepTime)
-		runtime.Gosched()
 		return false, posCnt
 	}
 
 	putPosNew = putPos + 1
 	if !atomic.CompareAndSwapUint64(&q.putPos, putPos, putPosNew) {
 		time.Sleep(q.sleepTime)
-		runtime.Gosched()
 		return false, posCnt
 	}
 
@@ -107,7 +104,6 @@ func (q *CasQueue) Put(val interface{}) (ok bool, quantity uint64) {
 			return true, posCnt + 1
 		} else {
 			time.Sleep(q.sleepTime)
-			runtime.Gosched()
 		}
 	}
 }
@@ -128,14 +124,12 @@ func (q *CasQueue) Get() (val interface{}, ok bool, quantity uint64) {
 
 	if posCnt < 1 {
 		time.Sleep(q.sleepTime)
-		runtime.Gosched()
 		return nil, false, posCnt
 	}
 
 	getPosNew = getPos + 1
 	if !atomic.CompareAndSwapUint64(&q.getPos, getPos, getPosNew) {
 		time.Sleep(q.sleepTime)
-		runtime.Gosched()
 		return nil, false, posCnt
 	}
 
@@ -152,7 +146,6 @@ func (q *CasQueue) Get() (val interface{}, ok bool, quantity uint64) {
 			return val, true, posCnt - 1
 		} else {
 			time.Sleep(q.sleepTime)
-			runtime.Gosched()
 		}
 	}
 }
@@ -172,7 +165,6 @@ func (q *CasQueue) Puts(values []interface{}) (puts, quantity int) {
 
 	if posCnt >= q.capacity {
 		time.Sleep(q.sleepTime)
-		runtime.Gosched()
 		return 0, int(posCnt)
 	}
 
@@ -185,7 +177,6 @@ func (q *CasQueue) Puts(values []interface{}) (puts, quantity int) {
 
 	if !atomic.CompareAndSwapUint64(&q.putPos, putPos, putPosNew) {
 		time.Sleep(q.sleepTime)
-		runtime.Gosched()
 		return 0, int(posCnt)
 	}
 
@@ -201,7 +192,6 @@ func (q *CasQueue) Puts(values []interface{}) (puts, quantity int) {
 				break
 			} else {
 				time.Sleep(q.sleepTime)
-				runtime.Gosched()
 			}
 		}
 	}
@@ -223,7 +213,6 @@ func (q *CasQueue) Gets(values []interface{}) (gets, quantity int) {
 
 	if posCnt < 1 {
 		time.Sleep(q.sleepTime)
-		runtime.Gosched()
 		return 0, int(posCnt)
 	}
 
@@ -236,7 +225,6 @@ func (q *CasQueue) Gets(values []interface{}) (gets, quantity int) {
 
 	if !atomic.CompareAndSwapUint64(&q.getPos, getPos, getPosNew) {
 		time.Sleep(q.sleepTime)
-		runtime.Gosched()
 		return 0, int(posCnt)
 	}
 
@@ -253,7 +241,6 @@ func (q *CasQueue) Gets(values []interface{}) (gets, quantity int) {
 				break
 			} else {
 				time.Sleep(q.sleepTime)
-				runtime.Gosched()
 			}
 		}
 	}

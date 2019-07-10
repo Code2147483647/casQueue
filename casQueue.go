@@ -83,7 +83,7 @@ func (q *CasQueue) Put(val interface{}) (ok bool, quantity uint64) {
 
 	// full
 	if posCnt >= q.capacity {
-		runtime.Gosched()
+		time.Sleep(q.sleepTime)
 		return false, posCnt
 	}
 
@@ -124,7 +124,7 @@ func (q *CasQueue) Get() (val interface{}, ok bool, quantity uint64) {
 	}
 
 	if posCnt < 1 {
-		runtime.Gosched()
+		time.Sleep(q.sleepTime)
 		return nil, false, posCnt
 	}
 
@@ -165,7 +165,7 @@ func (q *CasQueue) Puts(values []interface{}) (puts, quantity int) {
 	}
 
 	if posCnt >= q.capacity {
-		runtime.Gosched()
+		time.Sleep(q.sleepTime)
 		return 0, int(posCnt)
 	}
 
@@ -213,7 +213,7 @@ func (q *CasQueue) Gets(values []interface{}) (gets, quantity int) {
 	}
 
 	if posCnt < 1 {
-		runtime.Gosched()
+		time.Sleep(q.sleepTime)
 		return 0, int(posCnt)
 	}
 

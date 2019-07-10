@@ -88,7 +88,7 @@ func (q *CasQueue) Put(val interface{}) (ok bool, quantity uint64) {
 
 	putPosNew = putPos + 1
 	if !atomic.CompareAndSwapUint64(&q.putPos, putPos, putPosNew) {
-		time.Sleep(q.sleepTime)
+		runtime.Gosched()
 		return false, posCnt
 	}
 
@@ -103,7 +103,7 @@ func (q *CasQueue) Put(val interface{}) (ok bool, quantity uint64) {
 			atomic.AddUint64(&cache.putNo, q.capacity)
 			return true, posCnt + 1
 		} else {
-			time.Sleep(q.sleepTime)
+			runtime.Gosched()
 		}
 	}
 }
@@ -129,7 +129,7 @@ func (q *CasQueue) Get() (val interface{}, ok bool, quantity uint64) {
 
 	getPosNew = getPos + 1
 	if !atomic.CompareAndSwapUint64(&q.getPos, getPos, getPosNew) {
-		time.Sleep(q.sleepTime)
+		runtime.Gosched()
 		return nil, false, posCnt
 	}
 
@@ -145,7 +145,7 @@ func (q *CasQueue) Get() (val interface{}, ok bool, quantity uint64) {
 			atomic.AddUint64(&cache.getNo, q.capacity)
 			return val, true, posCnt - 1
 		} else {
-			time.Sleep(q.sleepTime)
+			runtime.Gosched()
 		}
 	}
 }
@@ -176,7 +176,7 @@ func (q *CasQueue) Puts(values []interface{}) (puts, quantity int) {
 	putPosNew = putPos + putCnt
 
 	if !atomic.CompareAndSwapUint64(&q.putPos, putPos, putPosNew) {
-		time.Sleep(q.sleepTime)
+		runtime.Gosched()
 		return 0, int(posCnt)
 	}
 
@@ -191,7 +191,7 @@ func (q *CasQueue) Puts(values []interface{}) (puts, quantity int) {
 				atomic.AddUint64(&cache.putNo, q.capacity)
 				break
 			} else {
-				time.Sleep(q.sleepTime)
+				runtime.Gosched()
 			}
 		}
 	}
@@ -224,7 +224,7 @@ func (q *CasQueue) Gets(values []interface{}) (gets, quantity int) {
 	getPosNew = getPos + getCnt
 
 	if !atomic.CompareAndSwapUint64(&q.getPos, getPos, getPosNew) {
-		time.Sleep(q.sleepTime)
+		runtime.Gosched()
 		return 0, int(posCnt)
 	}
 
@@ -240,7 +240,7 @@ func (q *CasQueue) Gets(values []interface{}) (gets, quantity int) {
 				getNo = atomic.AddUint64(&cache.getNo, q.capacity)
 				break
 			} else {
-				time.Sleep(q.sleepTime)
+				runtime.Gosched()
 			}
 		}
 	}
